@@ -1,0 +1,58 @@
+﻿@model List<Document>
+
+@if (TempData["Successful"] != null)
+{
+    <h5 style="color:green">@TempData["Successful"]</h5>
+}
+
+<div class="container">
+    <div class="row pt-3 pb-4">
+        <div>
+            <h1>Onay Bekleyen Belgeler</h1>
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Belge Başlığı</th>
+                <th>Belge Açıklaması</th>
+                <th>Dosya</th>
+                <th>Dosya Türü</th>
+                <th>Yükleme Tarihi</th>
+                <th>Kategori</th>
+                <th>Oluşturan Kullanıcı</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var document in Model)
+            {
+                <tr>
+                    <td>@document.DocumentId</td>
+                    <td>@document.DocumentTitle</td>
+                    <td>@document.DocumentDescription</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(document.FilePath))
+                        {
+                            <a href="@Url.Content("~/" + document.FilePath)" target="_blank">Belgeyi Görüntüle</a>
+                        }
+                        else
+                        {
+                            <span>Dosya Yüklenmemiş</span>
+                        }
+                    </td>
+                    <td>@document.FileType</td>
+                    <td>@document.UploadDate</td>
+                    <td>@document.Category?.CategoryName</td>
+                    <td>@document.CreatedByUser?.UserName</td>
+                    <td>
+                        <a asp-controller="Document" asp-action="Onayla" asp-route-id="@document.DocumentId" class="btn btn-success">✓ Onayla</a>
+                        <a asp-controller="Document" asp-action="Reddet" asp-route-id="@document.DocumentId" class="btn btn-danger">X Reddet</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

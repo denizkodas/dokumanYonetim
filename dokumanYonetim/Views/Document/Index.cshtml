@@ -1,0 +1,130 @@
+﻿@using System.Security.Claims
+@model List<Document>
+
+@if (TempData["Successful"] != null)
+{
+    <h5 style="color:green">@TempData["Successful"]</h5>
+}
+
+<div class="container">
+    <div class="row pt-3 pb-4">
+        <div>
+            <h1>Documents</h1>
+        </div>
+    </div>
+
+    <!-- Filtreleme Formu -->
+    <form asp-action="Index" method="get">
+        <div class="row pb-3">
+            <div class="col-md-3">
+                <label for="searchTerm">Search by Title:</label>
+                <input type="text" id="searchTerm" name="searchTerm" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label for="CategoryId">Category:</label>
+                <select id="CategoryId" name="CategoryId" class="form-control">
+                    <option value="">All Categories</option>
+                    @if (ViewBag.Categories != null && ViewBag.Categories.Any())
+                    {
+                        foreach (var category in ViewBag.Categories)
+                        {
+                            <option value="@category.CategoryId">@category.CategoryName</option>
+                        }
+                    }
+                    else
+                    {
+                        <option disabled>Hiç kategori yok</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate" class="form-control" />
+            </div>
+        </div>
+        <div class="row pb-3">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Document Title</th>
+                <th>Document Description</th>
+                <th>File</th>
+                <th>FileType</th>
+                <th>UploadDate</th>
+                <th>Category</th>
+                <th>Created By User</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var documents in Model)
+            {
+                <tr>
+                    <td>@documents.DocumentId</td>
+                    <td>@documents.DocumentTitle</td>
+                    <td>@documents.DocumentDescription</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(documents.FilePath))
+                        {
+                            <a href="@Url.Content("~/" + documents.FilePath)" target="_blank">View Document</a>
+                        }
+                        else
+                        {
+                            <span>No file uploaded</span>
+                        }
+                    </td>
+                    <td>@documents.FileType</td>
+                    <td>@documents.UploadDate</td>
+                    <td>@documents.Category?.CategoryName</td>
+                    <td>@documents.CreatedByUser?.UserName</td>
+                    <td>
+                        @if (documents.IsApproved == true)
+                        {
+                            <span class="text-success">Tamamen Onaylandı</span>
+                        }
+                        else
+                        {
+                            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                            @if (int.TryParse(currentUserId, out var currentUserIdInt) && documents.CurrentApproverId == currentUserIdInt)
+                            {
+                                <a asp-controller="Document" asp-action="Onayla" asp-route-id="@documents.DocumentId" type="button" class="btn btn-success">✓ Onayla</a>
+                            }
+                            else
+                            {
+                                <span>Onay bekleniyor</span>
+                            }
+                        }
+                    </td>
+                    <td>
+                        <a asp-controller="Document" asp-action="Reddet" asp-route-id="@documents.DocumentId" type="button" class="btn btn-danger">X Reddet</a>
+                    </td>
+                    <td>
+                        <a asp-controller="Document" asp-action="Guncelle" asp-route-id="@documents.DocumentId" type="button" class="btn btn-primary">Edit</a>
+                    </td>
+                    <td>
+                        <a asp-controller="Document" asp-action="Sil" asp-route-id="@documents.DocumentId" type="button" class="btn btn-primary">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row pt-3 pb-2">
+        <div>
+            <a asp-controller="Document" asp-action="Ekle" type="button" class="btn btn-primary">New Document</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+﻿@model dokumanYonetim.Models.Document
+
+<form method="post" enctype="multipart/form-data" asp-action="Ekle">
+    <input type="hidden" asp-for="DocumentId" /> @* DocumentId'yi formdan sunucuya göndermek için *@
+
+    <div class="border p-3 mt-5">
+        <div class="row pb-3">
+            <h2 class="text-primary">Yeni Döküman</h2>
+            <hr />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DocumentTitle" class="p-0"></label>
+            <input asp-for="DocumentTitle" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DocumentDescription" class="p-0"></label>
+            <input asp-for="DocumentDescription" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="fileUpload">Döküman Seç:</label>
+            <input type="file" class="form-control" id="fileUpload" name="file" accept=".pdf,.doc,.docx,.xlsx,.png,.jpg,.jpeg" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" class="form-control" required>
+                <option value="" disabled selected>Kategori Seçin</option>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.CategoryId">@category.CategoryName</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CreatedByUserId" class="form-label"></label>
+            <select asp-for="CreatedByUserId" class="form-control" required>
+                <option value="" disabled selected>Kullanıcı Seçin</option>
+                @foreach (var user in ViewBag.Users)
+                {
+                    <option value="@user.UserId">@user.UserName</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Oluştur</button>
+        <a asp-controller="Document" asp-action="Index" class="btn btn-secondary">Kapat</a>
+    </div>
+</form>
